@@ -83,7 +83,7 @@ async function runAgent(
         }
       }
     }
-    if (!response) throw new Error("No response from Gemini after retries");
+    if (!response) throw new Error("No response after retries");
 
     const choice = response.choices[0];
     messages.push(choice.message);
@@ -96,7 +96,12 @@ async function runAgent(
     }
 
     if (choice.finish_reason === "tool_calls") {
+      const calledThisTurn = new Set<string>();
       for (const tc of choice.message.tool_calls) {
+        const callKey = `${tc.function.name}:${tc.function.arguments}`;
+        if (calledThisTurn.has(callKey)) continue; // skip duplicate tool calls
+        calledThisTurn.add(callKey);
+
         let input: Record<string, unknown>;
         try {
           input = JSON.parse(tc.function.arguments) as Record<string, unknown>;
@@ -123,8 +128,8 @@ async function runAgent(
 }
 
 async function main() {
-  if (!process.env.GROQ_API_KEY) {
-    console.error("❌ GROQ_API_KEY not set. Registro gratis en https://console.groq.com");
+  if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
+    console.error("❌ Falta API key. GROQ_API_KEY (gratis en console.groq.com) o GEMINI_API_KEY (aistudio.google.com)");
     process.exit(1);
   }
 

@@ -3,7 +3,7 @@
 **Autonomous USD₮ Agent for Tether's WDK — Hackathon Track 1 Submission**
 
 [![Track](https://img.shields.io/badge/Track-1_WDK_Agent-blue)](#)
-[![LLM](https://img.shields.io/badge/LLM-Gemini_2.0_Flash-green)](#)
+[![LLM](https://img.shields.io/badge/LLM-Llama_3.3_70B_(Groq)-green)](#)
 [![Network](https://img.shields.io/badge/Network-ArepaPay_L1-red)](#)
 [![License](https://img.shields.io/badge/License-MIT-gray)](#)
 
@@ -16,10 +16,10 @@
 | WDK primitives (wallet creation, signing) | ✅ | `src/blockchain/wallet.ts` — BIP-44 `m/44'/60'/0'/0/0` via ethers v6 |
 | Agent holds USD₮ | ✅ | `check_balance` reads USDT on-chain |
 | Agent sends USD₮ | ✅ | `pay_merchant`, `x402`, `deposit_savings` execute transfers |
-| Agent reasoning framework | ✅ | Gemini 2.0 Flash via OpenAI-compatible endpoint |
+| Agent reasoning framework | ✅ | Llama 3.3 70B via Groq (OpenAI-compatible) |
 | Safety: limits & replay protection | ✅ | ERC-8004 daily budget, nonce-based protection in ArepaAgent.sol |
 | Separation: agent logic vs wallet execution | ✅ | `src/agent/` vs `src/blockchain/` |
-| Open-source LLM | ✅ | Gemini 2.0 Flash (free, no credit card) — **Bonus** |
+| Open-source LLM | ✅ | Llama 3.3 70B (free via Groq, no credit card) — **Bonus** |
 | Composability | ✅ | x402 + ArepaHub + SavingsVault + OTCMarket — **Bonus** |
 
 ---
@@ -34,7 +34,7 @@ npm install
 
 # 2. Configure
 cp .env.example .env
-# Edit: WDK_SEED + GEMINI_API_KEY (free at aistudio.google.com → Get API Key)
+# Edit: WDK_SEED + GROQ_API_KEY (free at console.groq.com → API Keys)
 
 # 3. Run
 npm run demo         # Terminal 1 — x402 demo server
