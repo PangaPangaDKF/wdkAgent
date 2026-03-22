@@ -21,11 +21,11 @@ import { AGENT_TOOLS } from "./tools.js";
 import { processToolCall } from "../tools/dispatch.js";
 
 const client = new OpenAI({
-  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-  apiKey: process.env.GEMINI_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
+  apiKey: process.env.GROQ_API_KEY,
 });
 
-const MODEL = "gemini-2.0-flash";
+const MODEL = "llama-3.3-70b-versatile";
 
 const SYSTEM_PROMPT = `You are WDK Agent, an autonomous Web3 financial agent for the ArepaPay ecosystem.
 You are built on Tether's WDK (Wallet Development Kit) primitives and run on ArepaPay L1 (Avalanche subnet, Chain ID 13370).
@@ -123,14 +123,14 @@ async function runAgent(
 }
 
 async function main() {
-  if (!process.env.GEMINI_API_KEY) {
-    console.error("❌ GEMINI_API_KEY not set. Get it free at https://aistudio.google.com → Get API Key");
+  if (!process.env.GROQ_API_KEY) {
+    console.error("❌ GROQ_API_KEY not set. Registro gratis en https://console.groq.com");
     process.exit(1);
   }
 
   console.log("┌──────────────────────────────────────────────┐");
   console.log("│  💳  WDK Agent — Tether Hackathon            │");
-  console.log("│     Gemini 2.0 Flash | ArepaPay L1           │");
+  console.log("│     Llama 3.3 70B (Groq) | ArepaPay L1      │");
   console.log("└──────────────────────────────────────────────┘");
   console.log('\nType your request (e.g. "check my balance") or "exit" to quit.\n');
 
