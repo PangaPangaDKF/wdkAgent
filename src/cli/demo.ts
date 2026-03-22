@@ -28,12 +28,16 @@ import { processToolCall } from "../tools/dispatch.js";
 
 function printHelp() {
   console.log(`
-Comandos ArepaAgent CLI:
-  balance [address]            — Saldos USDT / AREPA / tickets / minutos
+Comandos WDK Agent CLI:
+  balance [address]            — Saldos USD₮ / AREPA / tickets / minutos
+  wallet                       — Crear nueva wallet WDK-compatible (BIP-44)
   pay <id> <monto>             — Pagar comercio (panaderia|botellones|perros|bodega)
   prices [umbral%]             — Tasa ArepaHub vs Binance P2P en vivo
   liquidity                    — Liquidez en ArepaHub
   arbitrage [capital] [pct]    — Ejecutar arbitraje
+  savings                      — Ver posición en SavingsVault (yield)
+  deposit <monto>              — Depositar USD₮ en SavingsVault
+  withdraw <shares>            — Retirar shares del SavingsVault
   internet <minutos>           — Activar minutos WiFi
   fetch <url>                  — Fetch URL con pago x402 automático
   help                         — Esta ayuda
@@ -54,6 +58,34 @@ async function handleCommand(line: string): Promise<void> {
     case "balance":
       toolName = "check_balance";
       toolInput = parts[1] ? { address: parts[1] } : {};
+      break;
+
+    case "wallet":
+      toolName = "create_wallet";
+      toolInput = {};
+      break;
+
+    case "savings":
+      toolName = "get_savings_info";
+      toolInput = {};
+      break;
+
+    case "deposit":
+      if (!parts[1]) {
+        console.log("Uso: deposit <monto>  (ej: deposit 100)");
+        return;
+      }
+      toolName = "deposit_savings";
+      toolInput = { amount_usdt: parts[1] };
+      break;
+
+    case "withdraw":
+      if (!parts[1]) {
+        console.log("Uso: withdraw <shares>  (ej: withdraw 50)");
+        return;
+      }
+      toolName = "withdraw_savings";
+      toolInput = { shares: parts[1] };
       break;
 
     case "pay":

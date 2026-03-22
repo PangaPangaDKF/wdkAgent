@@ -1,89 +1,120 @@
-# WDK Agent
+# 💳 wdkAgent
 
-Autonomous agent wallet built on Tether's WDK primitives. Runs on ArepaPay L1 (Avalanche subnet, Chain ID 13370) and manages USD₮ without human intervention.
+**Autonomous USD₮ Agent for Tether's WDK — Hackathon Track 1 Submission**
 
-Uses Gemini 2.0 Flash (free) for reasoning. Wallets follow BIP-44 derivation — same standard as Tether's Wallet Development Kit.
-
----
-
-## What it does
-
-- Creates WDK-compatible HD wallets on demand
-- Sends and manages USD₮ autonomously
-- Executes arbitrage between ArepaHub internal rate and Binance P2P market
-- Deposits USD₮ into SavingsVault for yield (sUSDT)
-- Pays merchants via PaymentProcessor (auto-mints raffle tickets + WiFi minutes)
-- Fetches x402-gated HTTP resources and auto-pays when HTTP 402 is returned
-- Activates WiFi internet vouchers on-chain
+[![Track](https://img.shields.io/badge/Track-1_WDK_Agent-blue)](#)
+[![LLM](https://img.shields.io/badge/LLM-Gemini_2.0_Flash-green)](#)
+[![Network](https://img.shields.io/badge/Network-ArepaPay_L1-red)](#)
+[![License](https://img.shields.io/badge/License-MIT-gray)](#)
 
 ---
 
-## Setup
+## 🎯 Track 1 Compliance: Agent Wallets (WDK)
+
+| Requirement | Status | Implementation |
+|-------------|--------|----------------|
+| WDK primitives (wallet creation, signing) | ✅ | `src/blockchain/wallet.ts` — BIP-44 `m/44'/60'/0'/0/0` via ethers v6 |
+| Agent holds USD₮ | ✅ | `check_balance` reads USDT on-chain |
+| Agent sends USD₮ | ✅ | `pay_merchant`, `x402`, `deposit_savings` execute transfers |
+| Agent reasoning framework | ✅ | Gemini 2.0 Flash via OpenAI-compatible endpoint |
+| Safety: limits & replay protection | ✅ | ERC-8004 daily budget, nonce-based protection in ArepaAgent.sol |
+| Separation: agent logic vs wallet execution | ✅ | `src/agent/` vs `src/blockchain/` |
+| Open-source LLM | ✅ | Gemini 2.0 Flash (free, no credit card) — **Bonus** |
+| Composability | ✅ | x402 + ArepaHub + SavingsVault + OTCMarket — **Bonus** |
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-cp .env.example .env
+# 1. Clone & install
+git clone https://github.com/PangaPangaDKF/wdkAgent
+cd wdkAgent
 npm install
-```
 
-```bash
-# .env — wallet
-WDK_SEED=word1 word2 ... word12
+# 2. Configure
+cp .env.example .env
+# Edit: WDK_SEED + GEMINI_API_KEY (free at aistudio.google.com → Get API Key)
 
-# .env — LLM (gratis en aistudio.google.com)
-GEMINI_API_KEY=AIza...
-
-# .env — red
-RPC_URL=http://127.0.0.1:9650/ext/bc/24KtPXNgmHT2vVUPK1rx72ykjKwHBdfGrQr5bwJxmuaEBm5Fpx/rpc
-CHAIN_ID=13370
-PORT=3001
-```
-
-```bash
-# Terminal 1 — demo server x402
-npm run demo
-
-# Terminal 2 — agente IA
-npm run dev
-
-# Terminal 2 (alternativa) — CLI directo sin IA
-npm run cli
+# 3. Run
+npm run demo         # Terminal 1 — x402 demo server
+npm run dev          # Terminal 2 — Gemini agent (natural language)
+npm run cli          # Terminal 2 (alt) — Direct commands, no AI
 ```
 
 ---
 
-## Comandos CLI
+## 🤖 What the agent does
 
-```
-wdk> balance
-wdk> pay panaderia 5
-wdk> prices
-wdk> arbitrage
-wdk> deposit_savings 100
-wdk> savings
-wdk> internet 30
-wdk> fetch http://localhost:3001/api/bcv-rate
-```
+- **Creates WDK wallets** on demand — BIP-44 HD wallets, same standard as Tether WDK
+- **Manages USD₮ autonomously** — holds, sends, checks balances on-chain
+- **Executes arbitrage** — compares ArepaHub internal rate vs Binance P2P, trades when spread > 3%
+- **Earns yield** — deposits USD₮ into SavingsVault (sUSDT), profits from arbitrage cycles
+- **Pays merchants** — via PaymentProcessor, auto-mints raffle tickets + WiFi minutes
+- **x402 auto-payments** — HTTP 402 → pays on-chain → retries automatically
 
-Con el agente IA:
+---
+
+## 💬 Agent commands (natural language)
 
 ```
 crea una nueva wallet
 cuál es mi balance?
-deposita 50 USDT en savings
 hay oportunidad de arbitraje?
-paga 10 a la panaderia
+deposita 100 USDT en savings
+cuánto yield tengo?
+paga 5 a la panaderia
 activa 30 minutos de internet
 fetch http://localhost:3001/api/bcv-rate
 ```
 
+## ⌨️ CLI commands (sin IA)
+
+```
+wdk> balance
+wdk> wallet
+wdk> pay panaderia 5
+wdk> prices
+wdk> arbitrage
+wdk> savings
+wdk> deposit 100
+wdk> withdraw 50
+wdk> internet 30
+wdk> fetch http://localhost:3001/api/bcv-rate
+```
+
 ---
 
-## Contratos en ArepaPay L1
+## 🏗️ Architecture
 
-Chain ID 13370
+```
+User / Agent
+    ↓
+src/agent/index.ts       ← Gemini 2.0 Flash reasoning loop
+    ↓
+src/tools/dispatch.ts    ← 12 tools dispatcher
+    ↓
+┌─────────────────────────────────────────────┐
+│ Tools                                       │
+│ check_balance · create_wallet               │
+│ pay_merchant · activate_internet            │
+│ execute_arbitrage · inject_liquidity        │
+│ deposit_savings · withdraw_savings          │
+│ get_savings_info · get_market_prices        │
+│ get_hub_liquidity · fetch_with_payment      │
+└─────────────────────────────────────────────┘
+    ↓
+src/blockchain/wallet.ts  ← WDK-compatible BIP-44 signer
+    ↓
+ArepaPay L1 (Chain ID 13370)
+```
 
-| Contrato | Dirección |
-|----------|-----------|
+---
+
+## 📋 Contracts — ArepaPay L1
+
+| Contract | Address |
+|----------|---------|
 | MockUSDT | `0x29D720D6b5837f2b9d66834246635a4d8BC00d18` |
 | PaymentProcessor | `0xc09b059534D779f500B94f0DdC677765eEb5674b` |
 | MerchantRegistry | `0x252148C81c16ab7f7ec59521E9524b94bfe0e29c` |
@@ -93,18 +124,4 @@ Chain ID 13370
 | InternetVoucher | `0xCf939a5A6da5D022f2231DCE65DCaCd7Aeac1c46` |
 | RewardTicket | `0x6ACC6A8e1146137976eA8ae1043F0D4A8273C1F9` |
 
-Merchants: `panaderia`, `botellones`, `perros`, `bodega`
-
----
-
-## Track 1 — Agent Wallets (Tether Hackathon)
-
-| Requirement | Status |
-|-------------|--------|
-| Agent framework for reasoning | ✅ Gemini 2.0 Flash via OpenAI-compatible API |
-| WDK primitives (wallet creation, signing) | ✅ BIP-44 `m/44'/60'/0'/0/0` — WDK-compatible |
-| Agent holds/sends/manages USD₮ autonomously | ✅ Live on ArepaPay L1 |
-| Separation: agent logic vs wallet execution | ✅ `src/agent/` vs `src/blockchain/` |
-| Safety: limits and replay protection | ✅ ERC-8004 daily budget, nonce-based protection |
-| Open-source LLM | ✅ Gemini 2.0 Flash (bonus) |
-| Composability | ✅ x402 + ArepaHub + SavingsVault (bonus) |
+Merchants: `panaderia` · `botellones` · `perros` · `bodega`
