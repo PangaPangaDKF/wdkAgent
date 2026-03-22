@@ -25,7 +25,7 @@ const client = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-const MODEL = "gemini-1.5-flash";
+const MODEL = "gemini-2.0-flash";
 
 const SYSTEM_PROMPT = `You are WDK Agent, an autonomous Web3 financial agent for the ArepaPay ecosystem.
 You are built on Tether's WDK (Wallet Development Kit) primitives and run on ArepaPay L1 (Avalanche subnet, Chain ID 13370).
