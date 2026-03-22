@@ -25,7 +25,7 @@ const client = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-1.5-flash";
 
 const SYSTEM_PROMPT = `You are WDK Agent, an autonomous Web3 financial agent for the ArepaPay ecosystem.
 You are built on Tether's WDK (Wallet Development Kit) primitives and run on ArepaPay L1 (Avalanche subnet, Chain ID 13370).
@@ -61,12 +61,29 @@ async function runAgent(
   console.log("\n🤖 WDK Agent thinking...\n");
 
   while (true) {
-    const response = await client.chat.completions.create({
-      model: MODEL,
-      messages,
-      tools: AGENT_TOOLS,
-      tool_choice: "auto",
-    });
+    // Retry on 429 (Gemini free tier rate limit)
+    let response;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        response = await client.chat.completions.create({
+          model: MODEL,
+          messages,
+          tools: AGENT_TOOLS,
+          tool_choice: "auto",
+        });
+        break;
+      } catch (err: unknown) {
+        const status = (err as { status?: number }).status;
+        if (status === 429 && attempt < 3) {
+          const wait = attempt * 5;
+          console.log(`⏳ Rate limit — reintentando en ${wait}s...`);
+          await new Promise((r) => setTimeout(r, wait * 1000));
+        } else {
+          throw err;
+        }
+      }
+    }
+    if (!response) throw new Error("No response from Gemini after retries");
 
     const choice = response.choices[0];
     messages.push(choice.message);
